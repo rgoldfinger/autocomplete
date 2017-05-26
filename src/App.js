@@ -1,18 +1,16 @@
 // @flow
 import React from 'react';
+import idx from 'idx';
 import './App.css';
-import AutocompleteBlock from './AutocompleteBlock';
+// import AutocompleteBlock from './AutocompleteBlock';
 import { HashtagEntity, HashtagAutocomplete } from './Decorators';
 
-import {
-  Editor,
-  EditorState,
-  CompositeDecorator,
-  AtomicBlockUtils,
-} from 'draft-js';
+import { Editor, EditorState, CompositeDecorator, Modifier } from 'draft-js';
 
 // Terrible hack to get props passed to the decorator
+// $FlowFixMe
 const Store = { renderer: () => {} };
+const _autocompletes = {};
 
 /**
        * Super simple decorators for handles and hashtags, for demonstration
@@ -68,85 +66,112 @@ class App extends React.Component {
     editorState: EditorState.createEmpty(compositeDecorator),
   };
 
-  _autocompletes = {};
-
-  constructor(props) {
+  constructor(props: *) {
     super(props);
     Store.renderer = this.autocompleteRenderer;
   }
 
   focus = () => this.refs.editor.focus();
 
-  autocompleteRenderer = (Component, props: { offsetKey: string }, onEnter) => {
-    // When enter is pressed, add the block for the selected Component
-    // Enter pressed
-    // call 'enterPressed' on the selected autocomplete
-    // Figure out which autocomplete was selected, if any
-    // - get the current selection block
-
+  autocompleteRenderer = (Component: *, props: { offsetKey: string }) => {
     return (
       <Component
-        ref={ref => (this._autocompletes[props.offsetKey] = ref)}
+        ref={ref => (_autocompletes[props.offsetKey] = ref)}
         {...props}
+        editorState={this.state.editorState}
       />
     );
   };
 
   onChange = (editorState: *) => {
-    // step 1.
-    // fill the suggestion box with the content
-    //
-
-    // const selection = editorState.getSelection();
-    // //If there is no focus, return.
-    // if (!selection.getHasFocus()) {
-    //   return false;
-    // }
-    // const contentState = editorState.getCurrentContent();
-    // const block = contentState.getBlockForKey(selection.getStartKey());
-    // console.log(!!block.getEntityAt(selection.getStartOffset() - 1));
     this.setState({ editorState });
   };
 
-  // insertAutocomplete = (type: string) => {
-  //   const { editorState } = this.state;
-  //   const contentState = editorState.getCurrentContent();
-  //   const contentStateWithEntity = contentState.createEntity(
-  //     type,
-  //     'IMMUTABLE',
-  //     { text: 'data goes here' },
-  //   );
-  //   const entityKey = contentStateWithEntity.getLastCreatedEntityKey();
-  //   const newEditorState = EditorState.set(editorState, {
-  //     currentContent: contentStateWithEntity,
-  //   });
-  //   this.setState(
-  //     {
-  //       editorState: AtomicBlockUtils.insertAtomicBlock(
-  //         newEditorState,
-  //         entityKey,
-  //         ' ',
-  //       ),
-  //     },
-  //     () => {
-  //       setTimeout(() => this.refs.editor.focus(), 0);
-  //     },
-  //   );
-  // };
-
   getOffsetKeyForCurrentSelection = () => {
     const { editorState } = this.state;
-    const offsetKeys = Object.keys(this._autocompletes);
-    const selectionStartKey = editorState.getSelection().getStartKey();
-    return offsetKeys.find(k => k.startsWith(selectionStartKey));
+    // Is the current selection within any of our blocks?
+    // get the current selection.
+    // get the selection key + offset
+    // is it within the start/end?
+    const selection = editorState.getSelection();
+    const selectionStartKey = selection.getStartKey();
+    const selectionStartOffset = selection.getStartOffset();
+    const offsetKeys = Object.keys(_autocompletes).filter(
+      a => !!_autocompletes[a],
+    );
+
+    return offsetKeys.find(k => {
+      const [blockKey, unparsedDecoratorKey, unparsedLeafKey] = k.split('-');
+      const decoratorKey = parseInt(unparsedDecoratorKey, 10);
+      const leafKey = parseInt(unparsedLeafKey, 10);
+      const { start, end } = editorState
+        .getBlockTree(blockKey)
+        .getIn([decoratorKey, 'leaves', leafKey]);
+      return (
+        blockKey === selectionStartKey &&
+        start < selectionStartOffset &&
+        end >= selectionStartOffset
+      );
+    });
+  };
+
+  replaceAutocompleteWithBlock = (
+    offsetKey: String,
+    entityKey: String,
+    decoratedText: String,
+  ) => {
+    const { editorState } = this.state;
+    const [blockKey, unparsedDecoratorKey, unparsedLeafKey] = offsetKey.split(
+      '-',
+    );
+    const decoratorKey = parseInt(unparsedDecoratorKey, 10);
+    const leafKey = parseInt(unparsedLeafKey, 10);
+    const { start, end } = editorState
+      .getBlockTree(blockKey)
+      .getIn([decoratorKey, 'leaves', leafKey]);
+
+    const newSelectionState = editorState.getSelection().merge({
+      anchorKey: blockKey,
+      anchorOffset: start,
+      focusKey: blockKey,
+      focusOffset: end,
+    });
+
+    let replacedContent = Modifier.replaceText(
+      editorState.getCurrentContent(),
+      newSelectionState,
+      decoratedText,
+      null,
+      entityKey,
+    );
+
+    // If the mention is inserted at the end, a space is appended right after for
+    // a smooth writing experience.
+    const blockSize = editorState
+      .getCurrentContent()
+      .getBlockForKey(blockKey)
+      .getLength();
+    if (blockSize === editorState.getSelection().getEndOffset()) {
+      replacedContent = Modifier.insertText(
+        replacedContent,
+        replacedContent.getSelectionAfter(),
+        ' ',
+      );
+    }
+
+    const newEditorState = EditorState.push(editorState, replacedContent);
+    this.setState({
+      editorState: newEditorState,
+    });
   };
 
   handleReturn = () => {
     const offsetKey = this.getOffsetKeyForCurrentSelection();
-    if (offsetKey) {
-      // Perform a request to save your contents, set
-      // a new `editorState`, etc.
-      this._autocompletes[offsetKey].handleReturn();
+    if (offsetKey && idx(_autocompletes, _ => _[offsetKey].handleReturn)) {
+      _autocompletes[offsetKey].handleReturn(
+        this.state.editorState,
+        this.replaceAutocompleteWithBlock.bind(this),
+      );
       return 'handled';
     }
     return 'not-handled';
@@ -171,7 +196,7 @@ class App extends React.Component {
 function blockRenderer(block) {
   if (block.getType() === 'atomic') {
     return {
-      component: AutocompleteBlock,
+      component: HashtagEntity,
       editable: false,
     };
   }

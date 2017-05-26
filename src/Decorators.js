@@ -1,6 +1,6 @@
 // @flow
 import React from 'react';
-import { EditorState } from 'draft-js';
+import { EditorState, getVisibleSelectionRect } from 'draft-js';
 
 const styles = {
   handle: {
@@ -17,9 +17,11 @@ type AutocompleteComponentProps = {
   children: *,
   offsetKey: *,
   decoratedText: String,
+  editorState: EditorState,
 };
 
 export const HashtagEntity = (props: AutocompleteComponentProps) => {
+  console.log('render entity');
   return (
     <span style={styles.hashtag} data-offset-key={props.offsetKey}>
       {props.children}
@@ -29,18 +31,46 @@ export const HashtagEntity = (props: AutocompleteComponentProps) => {
 
 class HashtagAutocompleteComponent extends React.Component {
   props: AutocompleteComponentProps;
-  handleReturn() {
-    console.log('yo');
+  handleReturn(
+    editorState,
+    replaceAutocompleteWithBlock: (
+      offsetKey: String,
+      entityKey: String,
+      decoratedText: String,
+    ) => void,
+  ) {
+    const { decoratedText, offsetKey } = this.props;
+
+    const contentStateWithEntity = editorState
+      .getCurrentContent()
+      .createEntity('#', 'IMMUTABLE', {
+        text: decoratedText,
+      });
+    const entityKey = contentStateWithEntity.getLastCreatedEntityKey();
+    replaceAutocompleteWithBlock(offsetKey, entityKey, decoratedText);
   }
+
   render() {
-    const { decoratedText, offsetKey, children } = this.props;
+    const { decoratedText, offsetKey, children, editorState } = this.props;
+    const selection = editorState.getSelection();
+    const rect = getVisibleSelectionRect(window);
     const trimmedText = decoratedText.slice(1, decoratedText.length);
     return (
       <div style={{ display: 'inline' }}>
         <span style={styles.hashtag} data-offset-key={offsetKey}>
           {children}
         </span>
-        <div style={{ width: 50, position: 'absolute' }}>{trimmedText}</div>
+        <div
+          style={{
+            width: 50,
+            position: 'absolute',
+            top: rect.top + 20,
+            left: rect.left,
+            background: '#EEE',
+          }}
+        >
+          {trimmedText}
+        </div>
       </div>
     );
   }
