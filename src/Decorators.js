@@ -50,10 +50,33 @@ class HashtagAutocompleteComponent extends React.Component {
     replaceAutocompleteWithBlock(offsetKey, entityKey, decoratedText);
   }
 
+  // https://github.com/facebook/draft-js/issues/45#issuecomment-189800287
+  getSelectedBlockElement = () => {
+    var selection = window.getSelection();
+    if (selection.rangeCount === 0) {
+      return null;
+    }
+    var node = selection.getRangeAt(0).startContainer;
+    do {
+      if (
+        node.getAttribute &&
+        node.getAttribute('data-offset-key') === this.props.offsetKey
+      )
+        return node;
+      node = node.parentNode;
+    } while (node != null);
+    return null;
+  };
+
   render() {
-    const { decoratedText, offsetKey, children, editorState } = this.props;
-    const selection = editorState.getSelection();
-    const rect = getVisibleSelectionRect(window);
+    const { decoratedText, offsetKey, children } = this.props;
+    const el = this.getSelectedBlockElement();
+    let positionStyles = {};
+    if (el) {
+      const rect = el.getBoundingClientRect();
+      positionStyles = { top: rect.top + 20, left: rect.left };
+    }
+    // const rect = getVisibleSelectionRect(window) || {};
     const trimmedText = decoratedText.slice(1, decoratedText.length);
     return (
       <div style={{ display: 'inline' }}>
@@ -64,9 +87,8 @@ class HashtagAutocompleteComponent extends React.Component {
           style={{
             width: 50,
             position: 'absolute',
-            top: rect.top + 20,
-            left: rect.left,
             background: '#EEE',
+            ...positionStyles,
           }}
         >
           {trimmedText}
