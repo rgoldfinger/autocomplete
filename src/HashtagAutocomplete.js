@@ -31,7 +31,7 @@ function HashtagAutocompleteRow({
   tag: string,
   selected: boolean,
 }) {
-  return <div style={selected ? styles.selected : {}}>{tag}</div>;
+  return <div style={selected ? styles.selected : {}}>#{tag}</div>;
 }
 
 class HashtagAutocompleteComponent extends React.Component {

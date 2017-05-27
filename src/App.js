@@ -26,6 +26,10 @@ class App extends React.Component {
     Store.renderer = this.autocompleteRenderer;
   }
 
+  componentDidMount() {
+    this.focus();
+  }
+
   focus = () => this.refs.editor.focus();
 
   autocompleteRenderer = (Component: *, props: { offsetKey: string }) => {
@@ -175,7 +179,15 @@ class App extends React.Component {
 
   render() {
     return (
-      <div style={{ margin: 20, height: 500 }}>
+      <div
+        style={{
+          margin: 20,
+          height: 500,
+          border: '1px solid #AAA',
+          borderRadius: 2,
+          padding: 12,
+        }}
+      >
         <Editor
           editorState={this.state.editorState}
           handleReturn={this.handleReturn}

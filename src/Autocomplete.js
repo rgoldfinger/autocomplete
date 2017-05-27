@@ -104,12 +104,19 @@ class Autocomplete extends React.Component {
           }}
         >
           {data.map((d, i) => (
-            <RowComponent
-              {...d}
-              search={search}
+            <div
               key={d.id}
-              selected={selectedIndex === i}
-            />
+              style={{
+                padding: 2,
+                backgroundColor: selectedIndex === i ? 'blue' : 'inherit',
+              }}
+            >
+              <RowComponent
+                {...d}
+                search={search}
+                selected={selectedIndex === i}
+              />
+            </div>
           ))}
         </div>
       </div>
