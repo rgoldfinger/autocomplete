@@ -6,11 +6,8 @@ import { HashtagEntity, HashtagAutocomplete } from '../HashtagAutocomplete';
 import { CompositeDecorator } from 'draft-js';
 
 const PERSON_REGEX = /@.*?(?=(?:[@#<])|$)/g;
-const HASHTAG_REGEX = /#[\w\u0590-\u05ff]+/g;
+const HASHTAG_REGEX = /#.*?(?=(?:[ ])|$)/g;
 const RELATION_REGEX = /<>.*?(?=(?:[@#<])|$)/g;
-// const PERSON_REGEX = /@.*/g;
-// const HASHTAG_REGEX = /#[\w\u0590-\u05ff]+/g;
-// const RELATION_REGEX = /<>.*/g;
 
 const entityStrategy = trigger => (contentBlock, callback, contentState) => {
   contentBlock.findEntityRanges(character => {

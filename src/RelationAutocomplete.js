@@ -7,10 +7,7 @@ import data from './data/relationData.json';
 
 const styles = {
   relation: {
-    color: 'rgba(5, 184, 138, 1.0)',
-  },
-  selected: {
-    color: 'blue',
+    color: 'rgba(38, 138, 171, 1.0)',
   },
 };
 
@@ -25,13 +22,11 @@ export const RelationEntity = (props: AutocompleteComponentProps) => {
 function RelationAutocompleteRow({
   id,
   description,
-  selected,
 }: {
   id: number,
   description: string,
-  selected: boolean,
 }) {
-  return <div style={selected ? styles.selected : {}}>{description}</div>;
+  return <div>{description}</div>;
 }
 
 class RelationAutocompleteComponent extends React.Component {

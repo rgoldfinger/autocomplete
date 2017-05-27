@@ -8,10 +8,7 @@ import data from './data/peopleData.json';
 
 const styles = {
   person: {
-    color: 'rgba(184, 184, 138, 1.0)',
-  },
-  selected: {
-    color: 'blue',
+    color: 'rgba(38, 138, 171, 1.0)',
   },
 };
 
@@ -23,16 +20,8 @@ export const PersonEntity = (props: AutocompleteComponentProps) => {
   );
 };
 
-function PersonAutocompleteRow({
-  id,
-  name,
-  selected,
-}: {
-  id: number,
-  name: string,
-  selected: boolean,
-}) {
-  return <div style={selected ? styles.selected : {}}>{name}</div>;
+function PersonAutocompleteRow({ id, name }: { id: number, name: string }) {
+  return <div>{name}</div>;
 }
 
 class PersonAutocompleteComponent extends React.Component {

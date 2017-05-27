@@ -108,14 +108,12 @@ class Autocomplete extends React.Component {
               key={d.id}
               style={{
                 padding: 2,
-                backgroundColor: selectedIndex === i ? 'blue' : 'inherit',
+                backgroundColor: selectedIndex === i
+                  ? 'rgba(74, 144, 226, 1.0)'
+                  : 'inherit',
               }}
             >
-              <RowComponent
-                {...d}
-                search={search}
-                selected={selectedIndex === i}
-              />
+              <RowComponent {...d} search={search} />
             </div>
           ))}
         </div>

@@ -3,14 +3,13 @@ import React from 'react';
 import { EditorState } from 'draft-js';
 import Autocomplete from './Autocomplete';
 import type { AutocompleteComponentProps } from './Autocomplete';
-import data from './data/hashtagData.json';
+import { uniqBy } from 'lodash';
+import rawData from './data/hashtagData.json';
+const data = uniqBy(rawData, d => d.tag);
 
 const styles = {
   hashtag: {
-    color: 'rgba(95, 184, 138, 1.0)',
-  },
-  selected: {
-    color: 'blue',
+    color: 'rgba(38, 138, 171, 1.0)',
   },
 };
 
@@ -22,16 +21,8 @@ export const HashtagEntity = (props: AutocompleteComponentProps) => {
   );
 };
 
-function HashtagAutocompleteRow({
-  id,
-  tag,
-  selected,
-}: {
-  id: number,
-  tag: string,
-  selected: boolean,
-}) {
-  return <div style={selected ? styles.selected : {}}>#{tag}</div>;
+function HashtagAutocompleteRow({ id, tag }: { id: number, tag: string }) {
+  return <div>#{tag}</div>;
 }
 
 class HashtagAutocompleteComponent extends React.Component {
