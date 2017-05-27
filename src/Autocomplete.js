@@ -8,7 +8,7 @@ export type AutocompleteComponentProps = {
   decoratedText: String,
   editorState: EditorState,
   isSelected: boolean,
-  replaceAutocompleteWithBlock: (
+  replaceTextWithBlock: (
     offsetKey: String,
     entityKey: String,
     decoratedText: String,

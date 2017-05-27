@@ -20,12 +20,9 @@ export const RelationEntity = (props: AutocompleteComponentProps) => {
 
 class RelationAutocompleteComponent extends React.Component {
   props: AutocompleteComponentProps;
-  handleReturn(editorState) {
-    const {
-      decoratedText,
-      offsetKey,
-      replaceAutocompleteWithBlock,
-    } = this.props;
+
+  commit = editorState => {
+    const { decoratedText, offsetKey, replaceTextWithBlock } = this.props;
 
     const contentStateWithEntity = editorState
       .getCurrentContent()
@@ -33,7 +30,15 @@ class RelationAutocompleteComponent extends React.Component {
         text: decoratedText,
       });
     const entityKey = contentStateWithEntity.getLastCreatedEntityKey();
-    replaceAutocompleteWithBlock(offsetKey, entityKey, decoratedText);
+    replaceTextWithBlock(offsetKey, entityKey, decoratedText);
+  };
+
+  handleReturn = editorState => {
+    this.commit(editorState);
+  };
+
+  handleTab(editorState) {
+    this.commit(editorState);
   }
 
   render() {

@@ -39,7 +39,7 @@ class App extends React.Component {
             !_autocompletes[props.offsetKey]
         }
         editorState={this.state.editorState}
-        replaceAutocompleteWithBlock={this.replaceAutocompleteWithBlock}
+        replaceTextWithBlock={this.replaceTextWithBlock}
       />
     );
   };
@@ -81,7 +81,7 @@ class App extends React.Component {
     });
   };
 
-  replaceAutocompleteWithBlock = (
+  replaceTextWithBlock = (
     offsetKey: String,
     entityKey: String,
     decoratedText: String,
@@ -134,10 +134,18 @@ class App extends React.Component {
   handleReturn = () => {
     const offsetKey = this.getOffsetKeyForCurrentSelection();
     if (offsetKey && idx(_autocompletes, _ => _[offsetKey].handleReturn)) {
-      _autocompletes[offsetKey].handleReturn(
-        this.state.editorState,
-        this.replaceAutocompleteWithBlock.bind(this),
-      );
+      _autocompletes[offsetKey].handleReturn(this.state.editorState);
+      return 'handled';
+    }
+    return 'not-handled';
+  };
+
+  handleTab = (e: SyntheticKeyboardEvent) => {
+    const offsetKey = this.getOffsetKeyForCurrentSelection();
+    if (offsetKey && idx(_autocompletes, _ => _[offsetKey].handleTab)) {
+      _autocompletes[offsetKey].handleTab(this.state.editorState);
+      e.stopPropagation();
+      e.preventDefault();
       return 'handled';
     }
     return 'not-handled';
@@ -149,6 +157,7 @@ class App extends React.Component {
         <Editor
           editorState={this.state.editorState}
           handleReturn={this.handleReturn}
+          onTab={this.handleTab}
           onChange={this.onChange}
           placeholder="Enter some text..."
           ref="editor"
