@@ -3,10 +3,14 @@ import React from 'react';
 import { EditorState } from 'draft-js';
 import Autocomplete from './Autocomplete';
 import type { AutocompleteComponentProps } from './Autocomplete';
+import data from './data/relationData.json';
 
 const styles = {
   relation: {
     color: 'rgba(5, 184, 138, 1.0)',
+  },
+  selected: {
+    color: 'blue',
   },
 };
 
@@ -18,28 +22,56 @@ export const RelationEntity = (props: AutocompleteComponentProps) => {
   );
 };
 
+function RelationAutocompleteRow({
+  id,
+  description,
+  selected,
+}: {
+  id: number,
+  description: string,
+  selected: boolean,
+}) {
+  return <div style={selected ? styles.selected : {}}>{description}</div>;
+}
+
 class RelationAutocompleteComponent extends React.Component {
   props: AutocompleteComponentProps;
 
-  commit = editorState => {
-    const { decoratedText, offsetKey, replaceTextWithBlock } = this.props;
+  autocomplete: *;
+
+  commit = () => {
+    const {
+      decoratedText,
+      offsetKey,
+      replaceTextWithBlock,
+      editorState,
+    } = this.props;
+    const relation = this.autocomplete.getSelectedDatum();
+
+    const text = (relation && `<>${relation.description}`) || decoratedText;
 
     const contentStateWithEntity = editorState
       .getCurrentContent()
-      .createEntity('<>', 'IMMUTABLE', {
-        text: decoratedText,
-      });
+      .createEntity('<>', 'IMMUTABLE', { text });
     const entityKey = contentStateWithEntity.getLastCreatedEntityKey();
-    replaceTextWithBlock(offsetKey, entityKey, decoratedText);
+    replaceTextWithBlock(offsetKey, entityKey, text);
   };
 
-  handleReturn = editorState => {
-    this.commit(editorState);
+  handleReturn = () => {
+    this.commit();
   };
 
-  handleTab(editorState) {
-    this.commit(editorState);
-  }
+  handleTab = () => {
+    this.commit();
+  };
+
+  handleUpArrow = () => {
+    this.autocomplete.handleUpArrow();
+  };
+
+  handleDownArrow = () => {
+    this.autocomplete.handleDownArrow();
+  };
 
   render() {
     const { decoratedText, offsetKey, children, isSelected } = this.props;
@@ -53,7 +85,21 @@ class RelationAutocompleteComponent extends React.Component {
 
     const trimmedText = decoratedText.slice(2, decoratedText.length);
     return (
-      <Autocomplete search={trimmedText} offsetKey={offsetKey}>
+      <Autocomplete
+        ref={r => (this.autocomplete = r)}
+        RowComponent={RelationAutocompleteRow}
+        search={trimmedText}
+        offsetKey={offsetKey}
+        data={data
+          .filter(d => {
+            return trimmedText
+              ? d.description
+                  .toLowerCase()
+                  .startsWith(trimmedText.toLowerCase())
+              : true;
+          })
+          .slice(0, 10)}
+      >
         <span style={styles.relation} data-offset-key={offsetKey}>
           {children}
         </span>

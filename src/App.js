@@ -134,7 +134,7 @@ class App extends React.Component {
   handleReturn = () => {
     const offsetKey = this.getOffsetKeyForCurrentSelection();
     if (offsetKey && idx(_autocompletes, _ => _[offsetKey].handleReturn)) {
-      _autocompletes[offsetKey].handleReturn(this.state.editorState);
+      _autocompletes[offsetKey].handleReturn();
       return 'handled';
     }
     return 'not-handled';
@@ -143,7 +143,29 @@ class App extends React.Component {
   handleTab = (e: SyntheticKeyboardEvent) => {
     const offsetKey = this.getOffsetKeyForCurrentSelection();
     if (offsetKey && idx(_autocompletes, _ => _[offsetKey].handleTab)) {
-      _autocompletes[offsetKey].handleTab(this.state.editorState);
+      _autocompletes[offsetKey].handleTab();
+      e.stopPropagation();
+      e.preventDefault();
+      return 'handled';
+    }
+    return 'not-handled';
+  };
+
+  handleUpArrow = (e: SyntheticKeyboardEvent) => {
+    const offsetKey = this.getOffsetKeyForCurrentSelection();
+    if (offsetKey && idx(_autocompletes, _ => _[offsetKey].handleUpArrow)) {
+      _autocompletes[offsetKey].handleUpArrow();
+      e.stopPropagation();
+      e.preventDefault();
+      return 'handled';
+    }
+    return 'not-handled';
+  };
+
+  handleDownArrow = (e: SyntheticKeyboardEvent) => {
+    const offsetKey = this.getOffsetKeyForCurrentSelection();
+    if (offsetKey && idx(_autocompletes, _ => _[offsetKey].handleDownArrow)) {
+      _autocompletes[offsetKey].handleDownArrow();
       e.stopPropagation();
       e.preventDefault();
       return 'handled';
@@ -157,9 +179,10 @@ class App extends React.Component {
         <Editor
           editorState={this.state.editorState}
           handleReturn={this.handleReturn}
+          onUpArrow={this.handleUpArrow}
+          onDownArrow={this.handleDownArrow}
           onTab={this.handleTab}
           onChange={this.onChange}
-          placeholder="Enter some text..."
           ref="editor"
         />
       </div>

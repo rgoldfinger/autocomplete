@@ -15,15 +15,54 @@ export type AutocompleteComponentProps = {
   ) => void,
 };
 
+type Props = {
+  search: string,
+  children: *,
+  offsetKey: string,
+  data: Object[],
+  filterFn: (datum: Object, search: string) => boolean,
+  RowComponent: *,
+};
+
+type State = {
+  selectedIndex: number,
+};
+
 class Autocomplete extends React.Component {
-  props: {
-    search: string,
-    children: *,
-    offsetKey: string,
+  props: Props;
+
+  state: State = {
+    selectedIndex: 0,
   };
+
   componentDidMount() {
-    this.forceUpdate(); // ugh, but there's no dom element at first render time so ??
+    // Not pretty, but there's no dom element at first render so we need this to position the element correctly
+    this.forceUpdate();
   }
+
+  componentWillReceiveProps(nextProps: Props) {
+    // if (this.state.selectedIndex)
+  }
+
+  getSelectedDatum = () => {
+    return this.props.data[this.state.selectedIndex];
+  };
+
+  handleUpArrow = () => {
+    let newIndex = this.state.selectedIndex - 1;
+    if (newIndex < 0) {
+      newIndex = 0;
+    }
+    this.setState({ selectedIndex: newIndex });
+  };
+
+  handleDownArrow = () => {
+    let newIndex = this.state.selectedIndex + 1;
+    if (newIndex > this.props.data.length - 1) {
+      newIndex = this.props.data.length;
+    }
+    this.setState({ selectedIndex: newIndex });
+  };
 
   // https://github.com/facebook/draft-js/issues/45#issuecomment-189800287
   getSelectedBlockElement = () => {
@@ -44,7 +83,8 @@ class Autocomplete extends React.Component {
   };
 
   render() {
-    const { search, children } = this.props;
+    const { data, search, children, RowComponent } = this.props;
+    const { selectedIndex } = this.state;
     const el = this.getSelectedBlockElement();
     let positionStyles = {};
     if (el) {
@@ -63,7 +103,14 @@ class Autocomplete extends React.Component {
             ...positionStyles,
           }}
         >
-          {search}
+          {data.map((d, i) => (
+            <RowComponent
+              {...d}
+              search={search}
+              key={d.id}
+              selected={selectedIndex === i}
+            />
+          ))}
         </div>
       </div>
     );
