@@ -21,7 +21,17 @@ export const PersonEntity = (props: AutocompleteComponentProps) => {
 };
 
 function PersonAutocompleteRow({ id, name }: { id: number, name: string }) {
-  return <div>{name}</div>;
+  return (
+    <div style={{ display: 'flex', alignItems: 'center' }}>
+      <img
+        alt={name}
+        height={36}
+        width={36}
+        src="http://lorempixel.com/36/36/people/"
+      />
+      {name}
+    </div>
+  );
 }
 
 class PersonAutocompleteComponent extends React.Component {
@@ -98,10 +108,13 @@ class PersonAutocompleteComponent extends React.Component {
 
 export class PersonAutocomplete extends React.Component {
   props: {
-    renderer: Function,
+    autocompleteRenderer: Function,
     editorState: EditorState,
   };
   render() {
-    return this.props.renderer(PersonAutocompleteComponent, this.props);
+    return this.props.autocompleteRenderer(
+      PersonAutocompleteComponent,
+      this.props,
+    );
   }
 }

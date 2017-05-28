@@ -20,7 +20,6 @@ type Props = {
   children: *,
   offsetKey: string,
   data: Object[],
-  filterFn: (datum: Object, search: string) => boolean,
   RowComponent: *,
 };
 
@@ -38,10 +37,6 @@ class Autocomplete extends React.Component {
   componentDidMount() {
     // Not pretty, but there's no dom element at first render so we need this to position the element correctly
     this.forceUpdate();
-  }
-
-  componentWillReceiveProps(nextProps: Props) {
-    // if (this.state.selectedIndex)
   }
 
   getSelectedDatum = () => {
@@ -95,28 +90,32 @@ class Autocomplete extends React.Component {
     return (
       <div style={{ display: 'inline' }}>
         {children}
-        <div
-          style={{
-            minWidth: 50,
-            position: 'absolute',
-            background: '#EEE',
-            ...positionStyles,
-          }}
-        >
-          {data.map((d, i) => (
-            <div
-              key={d.id}
-              style={{
-                padding: 2,
-                backgroundColor: selectedIndex === i
-                  ? 'rgba(74, 144, 226, 1.0)'
-                  : 'inherit',
-              }}
-            >
-              <RowComponent {...d} search={search} />
-            </div>
-          ))}
-        </div>
+        {data.length !== 0 &&
+          <div
+            style={{
+              minWidth: 50,
+              position: 'absolute',
+              background: '#EEE',
+              border: '1px solid',
+              borderRadius: 2,
+              ...positionStyles,
+            }}
+          >
+            {data.map((d, i) => (
+              <div
+                key={d.id}
+                style={{
+                  padding: 2,
+
+                  backgroundColor: selectedIndex === i
+                    ? 'rgba(74, 144, 226, 1.0)'
+                    : 'inherit',
+                }}
+              >
+                <RowComponent {...d} search={search} />
+              </div>
+            ))}
+          </div>}
       </div>
     );
   }

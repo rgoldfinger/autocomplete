@@ -105,10 +105,10 @@ class RelationAutocompleteComponent extends React.Component {
 
 export class RelationAutocomplete extends React.Component {
   props: {
-    renderer: Function,
+    autocompleteRenderer: Function,
     editorState: EditorState,
   };
   render() {
-    return this.props.renderer(RelationAutocompleteComponent, this.props);
+    return this.props.autocompleteRenderer(RelationAutocompleteComponent, this.props);
   }
 }

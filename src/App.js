@@ -1,14 +1,13 @@
 // @flow
 import React from 'react';
 import idx from 'idx';
-import './App.css';
 import { createCompositeDecorator } from './utils/decorators';
 
 import { Editor, EditorState, Modifier } from 'draft-js';
 
 // Terrible hack to get props passed to the decorator
 // $FlowFixMe
-const Store = { renderer: () => {} };
+const Store = { autocompleteRenderer: () => {} };
 
 const _autocompletes = {};
 
@@ -23,7 +22,7 @@ class App extends React.Component {
 
   constructor(props: *) {
     super(props);
-    Store.renderer = this.autocompleteRenderer;
+    Store.autocompleteRenderer = this.autocompleteautocompleteRenderer;
   }
 
   componentDidMount() {
@@ -32,7 +31,10 @@ class App extends React.Component {
 
   focus = () => this.refs.editor.focus();
 
-  autocompleteRenderer = (Component: *, props: { offsetKey: string }) => {
+  autocompleteautocompleteRenderer = (
+    Component: *,
+    props: { offsetKey: string },
+  ) => {
     const selectedOffsetKey = this.getOffsetKeyForCurrentSelection();
     return (
       <Component
@@ -53,11 +55,8 @@ class App extends React.Component {
   };
 
   getOffsetKeyForCurrentSelection = () => {
-    const { editorState } = this.state;
     // Is the current selection within any of our blocks?
-    // get the current selection.
-    // get the selection key + offset
-    // is it within the start/end?
+    const { editorState } = this.state;
     const selection = editorState.getSelection();
     const selectionStartKey = selection.getStartKey();
     const selectionStartOffset = selection.getStartOffset();
