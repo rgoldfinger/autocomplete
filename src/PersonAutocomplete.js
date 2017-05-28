@@ -12,6 +12,27 @@ const styles = {
   },
 };
 
+// https://stackoverflow.com/questions/7616461/generate-a-hash-from-string-in-javascript-jquery
+function hashCode(str) {
+  var hash = 0, i, chr;
+  if (str.length === 0) return hash;
+  for (i = 0; i < str.length; i++) {
+    chr = str.charCodeAt(i);
+    hash = (hash << 5) - hash + chr;
+    hash |= 0; // Convert to 32bit integer
+  }
+  return hash;
+}
+
+function getImageUrl(name) {
+  const code = Math.abs(hashCode(name));
+  console.log(code % 2);
+  const gender = code % 2 >= 1 ? 'women' : 'men';
+  const num = parseInt(code % 90, 10);
+
+  return `https://randomuser.me/api/portraits/thumb/${gender}/${num}.jpg`;
+}
+
 export const PersonEntity = (props: AutocompleteComponentProps) => {
   return (
     <span style={styles.person}>
@@ -27,7 +48,8 @@ function PersonAutocompleteRow({ id, name }: { id: number, name: string }) {
         alt={name}
         height={36}
         width={36}
-        src="http://lorempixel.com/36/36/people/"
+        style={{ paddingRight: 12 }}
+        src={getImageUrl(name)}
       />
       {name}
     </div>

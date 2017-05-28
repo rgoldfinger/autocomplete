@@ -53,8 +53,8 @@ class Autocomplete extends React.Component {
 
   handleDownArrow = () => {
     let newIndex = this.state.selectedIndex + 1;
-    if (newIndex > this.props.data.length - 1) {
-      newIndex = this.props.data.length;
+    if (newIndex >= this.props.data.length - 1) {
+      newIndex = this.props.data.length - 1;
     }
     this.setState({ selectedIndex: newIndex });
   };

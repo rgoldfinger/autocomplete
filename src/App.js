@@ -3,7 +3,7 @@ import React from 'react';
 import idx from 'idx';
 import { createCompositeDecorator } from './utils/decorators';
 
-import { Editor, EditorState, Modifier } from 'draft-js';
+import { Editor, EditorState, Modifier, getDefaultKeyBinding } from 'draft-js';
 
 // Terrible hack to get props passed to the decorator
 // $FlowFixMe
@@ -176,6 +176,24 @@ class App extends React.Component {
     return 'not-handled';
   };
 
+  handleSpace = (e: SyntheticKeyboardEvent) => {
+    const offsetKey = this.getOffsetKeyForCurrentSelection();
+    if (offsetKey && idx(_autocompletes, _ => _[offsetKey].handleSpace)) {
+      _autocompletes[offsetKey].handleSpace();
+      e.stopPropagation();
+      e.preventDefault();
+      return 'handled';
+    }
+    return 'not-handled';
+  };
+
+  handleKeyPress = (e: SyntheticKeyboardEvent) => {
+    if (e.keyCode === 32 && this.handleSpace(e) === 'handled') {
+      return 'space-commit';
+    }
+    return getDefaultKeyBinding(e);
+  };
+
   render() {
     return (
       <div
@@ -192,6 +210,7 @@ class App extends React.Component {
           handleReturn={this.handleReturn}
           onUpArrow={this.handleUpArrow}
           onDownArrow={this.handleDownArrow}
+          keyBindingFn={this.handleKeyPress}
           onTab={this.handleTab}
           onChange={this.onChange}
           ref="editor"

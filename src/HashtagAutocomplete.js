@@ -55,6 +55,10 @@ class HashtagAutocompleteComponent extends React.Component {
     this.commit();
   };
 
+  handleSpace = () => {
+    this.commit();
+  };
+
   handleUpArrow = () => {
     this.autocomplete.handleUpArrow();
   };
@@ -64,14 +68,7 @@ class HashtagAutocompleteComponent extends React.Component {
   };
 
   render() {
-    const { decoratedText, offsetKey, children, isSelected } = this.props;
-    if (!isSelected) {
-      return (
-        <span style={styles.hashtag}>
-          {children}
-        </span>
-      );
-    }
+    const { decoratedText, offsetKey, children } = this.props;
 
     const trimmedText = decoratedText.slice(1, decoratedText.length);
     return (
@@ -102,6 +99,9 @@ export class HashtagAutocomplete extends React.Component {
     editorState: EditorState,
   };
   render() {
-    return this.props.autocompleteRenderer(HashtagAutocompleteComponent, this.props);
+    return this.props.autocompleteRenderer(
+      HashtagAutocompleteComponent,
+      this.props,
+    );
   }
 }
