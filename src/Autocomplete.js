@@ -5,13 +5,13 @@ import { EditorState } from 'draft-js';
 export type AutocompleteComponentProps = {
   children: *,
   offsetKey: *,
-  decoratedText: String,
+  decoratedText: string,
   editorState: EditorState,
   isSelected: boolean,
   replaceTextWithBlock: (
-    offsetKey: String,
-    entityKey: String,
-    decoratedText: String,
+    offsetKey: string,
+    entityKey: string,
+    decoratedText: string,
   ) => void,
 };
 
@@ -21,6 +21,7 @@ type Props = {
   offsetKey: string,
   data: Object[],
   RowComponent: *,
+  onSelect: (datum: *) => void,
 };
 
 type State = {
@@ -33,6 +34,7 @@ class Autocomplete extends React.Component {
   state: State = {
     selectedIndex: 0,
   };
+  ref: *;
 
   componentDidMount() {
     // Not pretty, but there's no dom element at first render so we need this to position the element correctly
@@ -77,6 +79,14 @@ class Autocomplete extends React.Component {
     return null;
   };
 
+  handleRowClick = (row: number) => {
+    this.props.onSelect(this.props.data[row]);
+  };
+
+  highlightRow = (row: number) => {
+    this.setState({ selectedIndex: row });
+  };
+
   render() {
     const { data, search, children, RowComponent } = this.props;
     const { selectedIndex } = this.state;
@@ -84,7 +94,7 @@ class Autocomplete extends React.Component {
     let positionStyles = {};
     if (el) {
       const rect = el.getBoundingClientRect();
-      positionStyles = { top: rect.top + 20, left: rect.left };
+      positionStyles = { top: rect.bottom + 4, left: rect.left };
     }
 
     return (
@@ -95,21 +105,32 @@ class Autocomplete extends React.Component {
             style={{
               minWidth: 50,
               position: 'absolute',
-              background: '#EEE',
-              border: '1px solid',
-              borderRadius: 2,
+              border: '0',
+              boxShadow: '#555 0px 1px 3px 0px',
+              borderRadius: 3,
+              background: '#FFF',
+              fontSize: 14,
+              animation: 'pop-downwards .2s forwards linear',
               ...positionStyles,
             }}
           >
             {data.map((d, i) => (
               <div
                 key={d.id}
+                onClick={() => this.props.onSelect(d)}
+                onMouseEnter={() => this.highlightRow(i)}
                 style={{
-                  padding: 2,
-
+                  padding: '2px 18px',
+                  cursor: 'pointer',
+                  color: selectedIndex === i ? '#EEE' : 'inherit',
+                  border: '0',
+                  borderTopRightRadius: i === 0 ? 3 : 0,
+                  borderTopLeftRadius: i === 0 ? 3 : 0,
+                  borderBottomRightRadius: i === data.length - 1 ? 3 : 0,
+                  borderBottomLeftRadius: i === data.length - 1 ? 3 : 0,
                   backgroundColor: selectedIndex === i
-                    ? 'rgba(74, 144, 226, 1.0)'
-                    : 'inherit',
+                    ? 'rgba(38, 138, 171, 1.0)'
+                    : '',
                 }}
               >
                 <RowComponent {...d} search={search} />

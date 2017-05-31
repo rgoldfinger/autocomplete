@@ -26,7 +26,7 @@ function RelationAutocompleteRow({
   id: number,
   description: string,
 }) {
-  return <div>{description}</div>;
+  return <div style={{ padding: '4px 0' }}>{description}</div>;
 }
 
 class RelationAutocompleteComponent extends React.Component {
@@ -34,16 +34,20 @@ class RelationAutocompleteComponent extends React.Component {
 
   autocomplete: *;
 
-  commit = () => {
+  commit = (
+    selectedItem?: {
+      id: number,
+      description: string,
+    } = this.autocomplete.getSelectedDatum(),
+  ) => {
     const {
       decoratedText,
       offsetKey,
       replaceTextWithBlock,
       editorState,
     } = this.props;
-    const relation = this.autocomplete.getSelectedDatum();
-
-    const text = (relation && `<>${relation.description}`) || decoratedText;
+    const text =
+      (selectedItem && `<>${selectedItem.description}`) || decoratedText;
 
     const contentStateWithEntity = editorState
       .getCurrentContent()
@@ -82,6 +86,7 @@ class RelationAutocompleteComponent extends React.Component {
     return (
       <Autocomplete
         ref={r => (this.autocomplete = r)}
+        onSelect={this.commit}
         RowComponent={RelationAutocompleteRow}
         search={trimmedText}
         offsetKey={offsetKey}
@@ -109,6 +114,9 @@ export class RelationAutocomplete extends React.Component {
     editorState: EditorState,
   };
   render() {
-    return this.props.autocompleteRenderer(RelationAutocompleteComponent, this.props);
+    return this.props.autocompleteRenderer(
+      RelationAutocompleteComponent,
+      this.props,
+    );
   }
 }

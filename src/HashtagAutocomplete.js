@@ -22,23 +22,26 @@ export const HashtagEntity = (props: AutocompleteComponentProps) => {
 };
 
 function HashtagAutocompleteRow({ id, tag }: { id: number, tag: string }) {
-  return <div>#{tag}</div>;
+  return <div style={{ padding: '4px 0' }}>#{tag}</div>;
 }
 
 class HashtagAutocompleteComponent extends React.Component {
   props: AutocompleteComponentProps;
   autocomplete: *;
 
-  commit = () => {
+  commit = (
+    selectedItem?: {
+      id: number,
+      tag: string,
+    } = this.autocomplete.getSelectedDatum(),
+  ) => {
     const {
       decoratedText,
       offsetKey,
       replaceTextWithBlock,
       editorState,
     } = this.props;
-    const hashtag = this.autocomplete.getSelectedDatum();
-
-    const text = (hashtag && `#${hashtag.tag}`) || decoratedText;
+    const text = (selectedItem && `#${selectedItem.tag}`) || decoratedText;
 
     const contentStateWithEntity = editorState
       .getCurrentContent()
@@ -75,6 +78,7 @@ class HashtagAutocompleteComponent extends React.Component {
       <Autocomplete
         RowComponent={HashtagAutocompleteRow}
         ref={r => (this.autocomplete = r)}
+        onSelect={this.commit}
         search={trimmedText}
         offsetKey={offsetKey}
         data={data

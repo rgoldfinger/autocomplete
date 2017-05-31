@@ -26,7 +26,6 @@ function hashCode(str) {
 
 function getImageUrl(name) {
   const code = Math.abs(hashCode(name));
-  console.log(code % 2);
   const gender = code % 2 >= 1 ? 'women' : 'men';
   const num = parseInt(code % 90, 10);
 
@@ -48,7 +47,7 @@ function PersonAutocompleteRow({ id, name }: { id: number, name: string }) {
         alt={name}
         height={36}
         width={36}
-        style={{ paddingRight: 12 }}
+        style={{ marginRight: 12, borderRadius: 36 }}
         src={getImageUrl(name)}
       />
       {name}
@@ -61,16 +60,20 @@ class PersonAutocompleteComponent extends React.Component {
 
   autocomplete: *;
 
-  commit = () => {
+  commit = (
+    selectedItem?: {
+      id: number,
+      name: string,
+    } = this.autocomplete.getSelectedDatum(),
+  ) => {
     const {
       decoratedText,
       offsetKey,
       replaceTextWithBlock,
       editorState,
     } = this.props;
-    const person = this.autocomplete.getSelectedDatum();
 
-    const text = (person && `@${person.name}`) || decoratedText;
+    const text = (selectedItem && `@${selectedItem.name}`) || decoratedText;
 
     const contentStateWithEntity = editorState
       .getCurrentContent()
@@ -108,6 +111,7 @@ class PersonAutocompleteComponent extends React.Component {
     const trimmedText = decoratedText.slice(1, decoratedText.length);
     return (
       <Autocomplete
+        onSelect={this.commit}
         ref={r => (this.autocomplete = r)}
         RowComponent={PersonAutocompleteRow}
         search={trimmedText}

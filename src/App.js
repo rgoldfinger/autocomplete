@@ -85,9 +85,9 @@ class App extends React.Component {
   };
 
   replaceTextWithBlock = (
-    offsetKey: String,
-    entityKey: String,
-    decoratedText: String,
+    offsetKey: string,
+    entityKey: string,
+    decoratedText: string,
   ) => {
     const { editorState } = this.state;
     const [blockKey, unparsedDecoratorKey, unparsedLeafKey] = offsetKey.split(
@@ -203,6 +203,10 @@ class App extends React.Component {
           border: '1px solid #AAA',
           borderRadius: 2,
           padding: 12,
+          color: '#393939',
+          fontSize: 18,
+          fontWeight: 300,
+          fontFamily: "'Roboto', sans-serif",
         }}
       >
         <Editor
