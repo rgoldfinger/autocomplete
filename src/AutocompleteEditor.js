@@ -47,7 +47,6 @@ class AutocompleteEditor extends React.Component {
           selectedOffsetKey === props.offsetKey ||
             !this._autocompletes[props.offsetKey]
         }
-        editorState={this.state.editorState}
         replaceTextWithBlock={this.replaceTextWithBlock}
       />
     );
@@ -89,13 +88,18 @@ class AutocompleteEditor extends React.Component {
 
   replaceTextWithBlock = (
     offsetKey: string,
-    entityKey: string,
+    autocompleteTypeKey: string,
     decoratedText: string,
   ) => {
     const { editorState } = this.state;
     const [blockKey, unparsedDecoratorKey, unparsedLeafKey] = offsetKey.split(
       '-',
     );
+    const contentStateWithEntity = editorState
+      .getCurrentContent()
+      .createEntity(autocompleteTypeKey, 'IMMUTABLE', { text: decoratedText });
+    const entityKey = contentStateWithEntity.getLastCreatedEntityKey();
+
     const decoratorKey = parseInt(unparsedDecoratorKey, 10);
     const leafKey = parseInt(unparsedLeafKey, 10);
     const { start, end } = editorState

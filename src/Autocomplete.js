@@ -1,12 +1,10 @@
 // @flow
 import React from 'react';
-import { EditorState } from 'draft-js';
 
 export type AutocompleteComponentProps = {
   children: *,
   offsetKey: *,
   decoratedText: string,
-  editorState: EditorState,
   isSelected: boolean,
   replaceTextWithBlock: (
     offsetKey: string,

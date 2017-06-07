@@ -1,6 +1,5 @@
 // @flow
 import React from 'react';
-import { EditorState } from 'draft-js';
 import Autocomplete from './Autocomplete';
 import type { AutocompleteComponentProps } from './Autocomplete';
 import { uniqBy } from 'lodash';
@@ -35,19 +34,9 @@ class HashtagAutocompleteComponent extends React.Component {
       tag: string,
     } = this.autocomplete.getSelectedDatum(),
   ) => {
-    const {
-      decoratedText,
-      offsetKey,
-      replaceTextWithBlock,
-      editorState,
-    } = this.props;
+    const { decoratedText, offsetKey, replaceTextWithBlock } = this.props;
     const text = (selectedItem && `#${selectedItem.tag}`) || decoratedText;
-
-    const contentStateWithEntity = editorState
-      .getCurrentContent()
-      .createEntity('#', 'IMMUTABLE', { text });
-    const entityKey = contentStateWithEntity.getLastCreatedEntityKey();
-    replaceTextWithBlock(offsetKey, entityKey, text);
+    replaceTextWithBlock(offsetKey, '#', text);
   };
 
   handleReturn = () => {
