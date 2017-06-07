@@ -5,44 +5,47 @@ import { createCompositeDecorator } from './utils/decorators';
 
 import { Editor, EditorState, Modifier, getDefaultKeyBinding } from 'draft-js';
 
-// Terrible hack to get props passed to the decorator
-// $FlowFixMe
-const Store = { autocompleteRenderer: () => {} };
-
-const _autocompletes = {};
-
+type Props = {
+  focus: boolean,
+};
 type State = {
   editorState: EditorState,
 };
 
-class App extends React.Component {
-  state: State = {
-    editorState: EditorState.createEmpty(createCompositeDecorator(Store)),
-  };
+class AutocompleteEditor extends React.Component {
+  props: Props;
+  state: State;
 
   constructor(props: *) {
     super(props);
-    Store.autocompleteRenderer = this.autocompleteautocompleteRenderer;
+    this.state = {
+      editorState: EditorState.createEmpty(
+        createCompositeDecorator({
+          autocompleteRenderer: this.autocompleteRenderer,
+        }),
+      ),
+    };
   }
 
   componentDidMount() {
-    this.focus();
+    if (this.props.focus) {
+      this.focus();
+    }
   }
 
   focus = () => this.refs.editor.focus();
 
-  autocompleteautocompleteRenderer = (
-    Component: *,
-    props: { offsetKey: string },
-  ) => {
+  _autocompletes = {};
+
+  autocompleteRenderer = (Component: *, props: { offsetKey: string }) => {
     const selectedOffsetKey = this.getOffsetKeyForCurrentSelection();
     return (
       <Component
-        ref={ref => (_autocompletes[props.offsetKey] = ref)}
+        ref={ref => (this._autocompletes[props.offsetKey] = ref)}
         {...props}
         isSelected={
           selectedOffsetKey === props.offsetKey ||
-            !_autocompletes[props.offsetKey]
+            !this._autocompletes[props.offsetKey]
         }
         editorState={this.state.editorState}
         replaceTextWithBlock={this.replaceTextWithBlock}
@@ -60,8 +63,8 @@ class App extends React.Component {
     const selection = editorState.getSelection();
     const selectionStartKey = selection.getStartKey();
     const selectionStartOffset = selection.getStartOffset();
-    const offsetKeys = Object.keys(_autocompletes).filter(
-      a => !!_autocompletes[a],
+    const offsetKeys = Object.keys(this._autocompletes).filter(
+      a => !!this._autocompletes[a],
     );
 
     return offsetKeys.find(k => {
@@ -136,8 +139,8 @@ class App extends React.Component {
 
   handleReturn = () => {
     const offsetKey = this.getOffsetKeyForCurrentSelection();
-    if (offsetKey && idx(_autocompletes, _ => _[offsetKey].handleReturn)) {
-      _autocompletes[offsetKey].handleReturn();
+    if (offsetKey && idx(this._autocompletes, _ => _[offsetKey].handleReturn)) {
+      this._autocompletes[offsetKey].handleReturn();
       return 'handled';
     }
     return 'not-handled';
@@ -145,8 +148,8 @@ class App extends React.Component {
 
   handleTab = (e: SyntheticKeyboardEvent) => {
     const offsetKey = this.getOffsetKeyForCurrentSelection();
-    if (offsetKey && idx(_autocompletes, _ => _[offsetKey].handleTab)) {
-      _autocompletes[offsetKey].handleTab();
+    if (offsetKey && idx(this._autocompletes, _ => _[offsetKey].handleTab)) {
+      this._autocompletes[offsetKey].handleTab();
       e.stopPropagation();
       e.preventDefault();
       return 'handled';
@@ -156,8 +159,11 @@ class App extends React.Component {
 
   handleUpArrow = (e: SyntheticKeyboardEvent) => {
     const offsetKey = this.getOffsetKeyForCurrentSelection();
-    if (offsetKey && idx(_autocompletes, _ => _[offsetKey].handleUpArrow)) {
-      _autocompletes[offsetKey].handleUpArrow();
+    if (
+      offsetKey &&
+      idx(this._autocompletes, _ => _[offsetKey].handleUpArrow)
+    ) {
+      this._autocompletes[offsetKey].handleUpArrow();
       e.stopPropagation();
       e.preventDefault();
       return 'handled';
@@ -167,8 +173,11 @@ class App extends React.Component {
 
   handleDownArrow = (e: SyntheticKeyboardEvent) => {
     const offsetKey = this.getOffsetKeyForCurrentSelection();
-    if (offsetKey && idx(_autocompletes, _ => _[offsetKey].handleDownArrow)) {
-      _autocompletes[offsetKey].handleDownArrow();
+    if (
+      offsetKey &&
+      idx(this._autocompletes, _ => _[offsetKey].handleDownArrow)
+    ) {
+      this._autocompletes[offsetKey].handleDownArrow();
       e.stopPropagation();
       e.preventDefault();
       return 'handled';
@@ -178,8 +187,8 @@ class App extends React.Component {
 
   handleSpace = (e: SyntheticKeyboardEvent) => {
     const offsetKey = this.getOffsetKeyForCurrentSelection();
-    if (offsetKey && idx(_autocompletes, _ => _[offsetKey].handleSpace)) {
-      _autocompletes[offsetKey].handleSpace();
+    if (offsetKey && idx(this._autocompletes, _ => _[offsetKey].handleSpace)) {
+      this._autocompletes[offsetKey].handleSpace();
       e.stopPropagation();
       e.preventDefault();
       return 'handled';
@@ -224,4 +233,4 @@ class App extends React.Component {
   }
 }
 
-export default App;
+export default AutocompleteEditor;

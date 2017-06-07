@@ -100,7 +100,6 @@ class HashtagAutocompleteComponent extends React.Component {
 export class HashtagAutocomplete extends React.Component {
   props: {
     autocompleteRenderer: Function,
-    editorState: EditorState,
   };
   render() {
     return this.props.autocompleteRenderer(

@@ -135,7 +135,6 @@ class PersonAutocompleteComponent extends React.Component {
 export class PersonAutocomplete extends React.Component {
   props: {
     autocompleteRenderer: Function,
-    editorState: EditorState,
   };
   render() {
     return this.props.autocompleteRenderer(
