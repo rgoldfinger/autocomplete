@@ -1,5 +1,6 @@
 // @flow
 import React from 'react';
+import Portal from 'react-portal';
 
 export type AutocompleteComponentProps = {
   children: *,
@@ -99,42 +100,44 @@ class Autocomplete extends React.Component {
       <div style={{ display: 'inline' }}>
         {children}
         {data.length !== 0 &&
-          <div
-            style={{
-              minWidth: 50,
-              position: 'absolute',
-              border: '0',
-              boxShadow: '#555 0px 1px 3px 0px',
-              borderRadius: 3,
-              background: '#FFF',
-              fontSize: 14,
-              animation: 'pop-downwards .2s forwards linear',
-              ...positionStyles,
-            }}
-          >
-            {data.map((d, i) => (
-              <div
-                key={d.id}
-                onClick={() => this.props.onSelect(d)}
-                onMouseEnter={() => this.highlightRow(i)}
-                style={{
-                  padding: '2px 18px',
-                  cursor: 'pointer',
-                  color: selectedIndex === i ? '#EEE' : 'inherit',
-                  border: '0',
-                  borderTopRightRadius: i === 0 ? 3 : 0,
-                  borderTopLeftRadius: i === 0 ? 3 : 0,
-                  borderBottomRightRadius: i === data.length - 1 ? 3 : 0,
-                  borderBottomLeftRadius: i === data.length - 1 ? 3 : 0,
-                  backgroundColor: selectedIndex === i
-                    ? 'rgba(38, 138, 171, 1.0)'
-                    : '',
-                }}
-              >
-                <RowComponent {...d} search={search} />
-              </div>
-            ))}
-          </div>}
+          <Portal isOpened>
+            <div
+              style={{
+                minWidth: 50,
+                position: 'absolute',
+                border: '0',
+                boxShadow: '#555 0px 1px 3px 0px',
+                borderRadius: 3,
+                background: '#FFF',
+                fontSize: 14,
+                animation: 'pop-downwards .2s forwards linear',
+                ...positionStyles,
+              }}
+            >
+              {data.map((d, i) => (
+                <div
+                  key={d.id}
+                  onClick={() => this.props.onSelect(d)}
+                  onMouseEnter={() => this.highlightRow(i)}
+                  style={{
+                    padding: '2px 18px',
+                    cursor: 'pointer',
+                    color: selectedIndex === i ? '#EEE' : 'inherit',
+                    border: '0',
+                    borderTopRightRadius: i === 0 ? 3 : 0,
+                    borderTopLeftRadius: i === 0 ? 3 : 0,
+                    borderBottomRightRadius: i === data.length - 1 ? 3 : 0,
+                    borderBottomLeftRadius: i === data.length - 1 ? 3 : 0,
+                    backgroundColor: selectedIndex === i
+                      ? 'rgba(38, 138, 171, 1.0)'
+                      : '',
+                  }}
+                >
+                  <RowComponent {...d} search={search} />
+                </div>
+              ))}
+            </div>
+          </Portal>}
       </div>
     );
   }
