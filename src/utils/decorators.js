@@ -20,21 +20,29 @@ const entityStrategy = trigger => (contentBlock, callback, contentState) => {
 };
 
 function hashtagStrategy(contentBlock, callback, contentState) {
-  findWithRegex(HASHTAG_REGEX, contentBlock, callback);
+  findWithRegex(HASHTAG_REGEX, contentBlock, contentState, callback);
 }
 function personStrategy(contentBlock, callback, contentState) {
-  findWithRegex(PERSON_REGEX, contentBlock, callback);
+  findWithRegex(PERSON_REGEX, contentBlock, contentState, callback);
 }
 function relationStrategy(contentBlock, callback, contentState) {
-  findWithRegex(RELATION_REGEX, contentBlock, callback);
+  findWithRegex(RELATION_REGEX, contentBlock, contentState, callback);
 }
 
-function findWithRegex(regex, contentBlock, callback) {
+function findWithRegex(regex, contentBlock, contentState, callback) {
   const text = contentBlock.getText();
   let matchArr, start;
+  const cursorPosition = contentState.getSelectionAfter().get('anchorOffset');
   while ((matchArr = regex.exec(text)) !== null) {
     start = matchArr.index;
-    callback(start, start + matchArr[0].length);
+    console.log(matchArr[0]);
+    if (cursorPosition > start + matchArr[0].length) {
+      callback(start, start + matchArr[0].length);
+      console.log('bigger', start, start + matchArr[0].length);
+    } else {
+      callback(start, cursorPosition + 1);
+      console.log('smaller', start, cursorPosition + 1);
+    }
   }
 }
 
