@@ -73,6 +73,7 @@ class AutocompleteEditor extends React.Component {
       const leaf = editorState
         .getBlockTree(blockKey)
         .getIn([decoratorKey, 'leaves', leafKey]);
+
       if (leaf) {
         const { start, end } = leaf;
         return (
@@ -95,10 +96,6 @@ class AutocompleteEditor extends React.Component {
     const [blockKey, unparsedDecoratorKey, unparsedLeafKey] = offsetKey.split(
       '-',
     );
-    const contentStateWithEntity = editorState
-      .getCurrentContent()
-      .createEntity(autocompleteTypeKey, 'IMMUTABLE', { text: decoratedText });
-    const entityKey = contentStateWithEntity.getLastCreatedEntityKey();
 
     const decoratorKey = parseInt(unparsedDecoratorKey, 10);
     const leafKey = parseInt(unparsedLeafKey, 10);
@@ -106,7 +103,15 @@ class AutocompleteEditor extends React.Component {
       .getBlockTree(blockKey)
       .getIn([decoratorKey, 'leaves', leafKey]);
 
-    const newSelectionState = editorState.getSelection().merge({
+    const initialContentState = editorState.getCurrentContent();
+    const contentStateWithEntity = initialContentState.createEntity(
+      autocompleteTypeKey,
+      'IMMUTABLE',
+      { text: decoratedText },
+    );
+    const entityKey = contentStateWithEntity.getLastCreatedEntityKey();
+
+    const initialEntitySelection = editorState.getSelection().merge({
       anchorKey: blockKey,
       anchorOffset: start,
       focusKey: blockKey,
@@ -114,19 +119,15 @@ class AutocompleteEditor extends React.Component {
     });
 
     let replacedContent = Modifier.replaceText(
-      editorState.getCurrentContent(),
-      newSelectionState,
+      initialContentState,
+      initialEntitySelection,
       decoratedText,
       null,
       entityKey,
     );
 
-    // If the mention is inserted at the end, a space is appended right after for
-    // a smooth writing experience.
-    const blockSize = editorState
-      .getCurrentContent()
-      .getBlockForKey(blockKey)
-      .getLength();
+    // If the autocompleted entity is inserted at the end, append a space
+    const blockSize = initialContentState.getBlockForKey(blockKey).getLength();
     if (blockSize === editorState.getSelection().getEndOffset()) {
       replacedContent = Modifier.insertText(
         replacedContent,
