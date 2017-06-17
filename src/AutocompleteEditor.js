@@ -107,7 +107,6 @@ class AutocompleteEditor extends React.Component {
     const contentStateWithEntity = initialContentState.createEntity(
       autocompleteTypeKey,
       'IMMUTABLE',
-      { text: decoratedText },
     );
     const entityKey = contentStateWithEntity.getLastCreatedEntityKey();
 
@@ -119,7 +118,7 @@ class AutocompleteEditor extends React.Component {
     });
 
     let replacedContent = Modifier.replaceText(
-      initialContentState,
+      contentStateWithEntity,
       initialEntitySelection,
       decoratedText,
       null,
