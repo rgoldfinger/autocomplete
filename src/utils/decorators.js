@@ -35,13 +35,10 @@ function findWithRegex(regex, contentBlock, contentState, callback) {
   const cursorPosition = contentState.getSelectionAfter().get('anchorOffset');
   while ((matchArr = regex.exec(text)) !== null) {
     start = matchArr.index;
-    console.log(matchArr[0]);
     if (cursorPosition > start + matchArr[0].length) {
       callback(start, start + matchArr[0].length);
-      console.log('bigger', start, start + matchArr[0].length);
     } else {
       callback(start, cursorPosition + 1);
-      console.log('smaller', start, cursorPosition + 1);
     }
   }
 }
